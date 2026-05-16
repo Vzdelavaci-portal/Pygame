@@ -135,3 +135,4 @@ Další mini hry již brzy:
 - Maze Game
 - Reaction Timer
 - Memory Game
+```
