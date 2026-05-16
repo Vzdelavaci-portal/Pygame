@@ -1,14 +1,12 @@
-# 🇬🇧 README (EN)
+# Snake Game - Python Mini Game #1
 
-# 🐍 Snake Game – Python Mini Game #1
+A simple Snake game built with Python and Pygame.
 
-A simple Snake game built with **Python** and **Pygame**.
-
-This project is part of the **Python Mini Games** series, where small games are created using only a few lines of code.
+This project is part of the Python Mini Games series.
 
 ---
 
-## 🎮 Features
+## Features
 
 - Snake movement with arrow keys
 - Random food spawning
@@ -19,69 +17,52 @@ This project is part of the **Python Mini Games** series, where small games are 
 
 ---
 
-## 📦 Installation
+## Installation
 
 Install Pygame first:
 
-```bash
-pip install pygame
-```
+    pip install pygame
 
 ---
 
-## ▶️ Run the Game
+## Run the Game
 
-```bash
-python snake.py
-```
+    python snake.py
 
 ---
 
-## 🎮 Controls
+## Controls
 
 | Key | Action |
-|------|------|
-| ⬆️ | Move Up |
-| ⬇️ | Move Down |
-| ⬅️ | Move Left |
-| ➡️ | Move Right |
+|---|---|
+| Arrow Up | Move Up |
+| Arrow Down | Move Down |
+| Arrow Left | Move Left |
+| Arrow Right | Move Right |
 
 ---
 
-## 📚 Technologies Used
+## Technologies Used
 
 - Python
 - Pygame
 
 ---
 
-## 🚀 Python Mini Games Series
+# CZ verze
 
-More mini games coming soon:
+# Had - Python Mini Game #1
 
-- Pong
-- Flappy Bird
-- Space Shooter
-- Maze Game
-- Reaction Timer
-- Memory Game
+Jednoduchá hra Had vytvořená v Pythonu pomocí knihovny Pygame.
+
+Tento projekt je součástí série Python Mini Games.
 
 ---
 
-# 🇨🇿 README (CZ)
-
-# 🐍 Snake Game – Python Mini Game #1
-
-Jednoduchá hra Had vytvořená pomocí knihovny **Pygame** v Pythonu.
-
-Tento projekt je součástí série **Python Mini Games**, kde vznikají malé hry v několika desítkách řádků kódu.
-
----
-
-## 🎮 Funkce
+## Funkce
 
 - Pohyb hada pomocí šipek
-- Náhodně generované jídlo
+- Náhodné generování jídla
 - Počítání skóre
 - Kolize se zdí
 - Kolize se sebou samým
@@ -89,50 +70,32 @@ Tento projekt je součástí série **Python Mini Games**, kde vznikají malé h
 
 ---
 
-## 📦 Instalace
+## Instalace
 
-Nejprve nainstaluj knihovnu Pygame:
+Nejprve nainstaluj Pygame:
 
-```bash
-pip install pygame
-```
+    pip install pygame
 
 ---
 
-## ▶️ Spuštění hry
+## Spuštění hry
 
-```bash
-python snake.py
-```
+    python snake.py
 
 ---
 
-## 🎮 Ovládání
+## Ovládání
 
 | Klávesa | Akce |
-|------|------|
-| ⬆️ | Nahoru |
-| ⬇️ | Dolů |
-| ⬅️ | Doleva |
-| ➡️ | Doprava |
+|---|---|
+| Šipka nahoru | Nahoru |
+| Šipka dolů | Dolů |
+| Šipka doleva | Doleva |
+| Šipka doprava | Doprava |
 
 ---
 
-## 📚 Použité technologie
+## Použité technologie
 
 - Python
 - Pygame
-
----
-
-## 🚀 Série Python Mini Games
-
-Další mini hry již brzy:
-
-- Pong
-- Flappy Bird
-- Space Shooter
-- Maze Game
-- Reaction Timer
-- Memory Game
-```
