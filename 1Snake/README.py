@@ -1,101 +1,83 @@
-# Snake Game - Python Mini Game #1
-
-A simple Snake game built with Python and Pygame.
-
-This project is part of the Python Mini Games series.
+# 🐍 Snake Game – Python Mini Game #1
 
 ---
 
-## Features
+## 🇬🇧 English
 
-- Snake movement with arrow keys
-- Random food spawning
-- Score counter
-- Wall collision
-- Self collision
-- Simple minimalist design
+Simple Snake game built with **Python and Pygame**.
 
----
+### 🎮 About the game
 
-## Installation
+Control the snake, collect food and survive as long as possible.
 
-Install Pygame first:
+- Move using arrow keys ⌨️  
+- Eat food to grow 🍎  
+- Avoid walls and your own body 💀  
+- Score points for every food collected  
+- Classic retro gameplay 🎮  
+
+### 🚀 How to run
+
+1. Install Python  
+2. Install Pygame:  
 
     pip install pygame
 
----
-
-## Run the Game
+3. Run the game:
 
     python snake.py
 
----
+### 🛠 Technologies
 
-## Controls
+- Python  
+- Pygame  
 
-| Key | Action |
-|---|---|
-| Arrow Up | Move Up |
-| Arrow Down | Move Down |
-| Arrow Left | Move Left |
-| Arrow Right | Move Right |
+### 📌 Features
 
----
-
-## Technologies Used
-
-- Python
-- Pygame
+- Snake movement  
+- Food spawning  
+- Score system  
+- Collision detection  
+- Game over screen  
+- Simple minimalist UI  
 
 ---
 
-# CZ verze
+## 🇨🇿 Česky
 
-# Had - Python Mini Game #1
+Jednoduchá hra Had vytvořená pomocí **Pythonu a Pygame**.
 
-Jednoduchá hra Had vytvořená v Pythonu pomocí knihovny Pygame.
+### 🎮 O hře
 
-Tento projekt je součástí série Python Mini Games.
+Ovládej hada, sbírej jídlo a přežij co nejdéle.
 
----
+- Pohyb pomocí šipek ⌨️  
+- Jez jídlo a zvětšuj hada 🍎  
+- Vyhýbej se zdem a vlastnímu tělu 💀  
+- Získávej body za každé jídlo  
+- Klasická retro hratelnost 🎮  
 
-## Funkce
+### 🚀 Jak spustit
 
-- Pohyb hada pomocí šipek
-- Náhodné generování jídla
-- Počítání skóre
-- Kolize se zdí
-- Kolize se sebou samým
-- Jednoduchý minimalistický design
-
----
-
-## Instalace
-
-Nejprve nainstaluj Pygame:
+1. Nainstaluj Python  
+2. Nainstaluj Pygame:
 
     pip install pygame
 
----
-
-## Spuštění hry
+3. Spusť hru:
 
     python snake.py
 
----
+### 🛠 Technologie
 
-## Ovládání
+- Python  
+- Pygame  
 
-| Klávesa | Akce |
-|---|---|
-| Šipka nahoru | Nahoru |
-| Šipka dolů | Dolů |
-| Šipka doleva | Doleva |
-| Šipka doprava | Doprava |
+### 📌 Funkce
 
----
-
-## Použité technologie
-
-- Python
-- Pygame
+- Pohyb hada  
+- Generování jídla  
+- Systém skóre  
+- Detekce kolizí  
+- Game over obrazovka  
+- Jednoduché minimalistické UI  
