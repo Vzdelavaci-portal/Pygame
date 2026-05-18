@@ -14,6 +14,7 @@ Each project is small, easy to understand and perfect for beginners who want to 
 |---|---|---|
 | 1 | 🐍 Snake Game | [1Snake](./1Snake/) |
 | 2 | 🚀 Space Shooter | [2SpaceShooter](./2SpaceShooter/) |
+| 3 | ⚽ Mini Football | [3MiniFootball](./3MiniFootball/) |
 
 ---
 
@@ -80,6 +81,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 |---|---|---|
 | 1 | 🐍 Snake Game | [1Snake](./1Snake/) |
 | 2 | 🚀 Space Shooter | [2SpaceShooter](./2SpaceShooter/) |
+| 3 | ⚽ Mini Football | [3MiniFootball](./3MiniFootball/) |
 
 ---
 
