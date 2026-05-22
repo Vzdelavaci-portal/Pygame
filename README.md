@@ -16,6 +16,7 @@ Each project is small, easy to understand and perfect for beginners who want to 
 | 2 | 🚀 Space Shooter | [2SpaceShooter](./2SpaceShooter/) |
 | 3 | ⚽ Mini Football | [3MiniFootball](./3MiniFootball/) |
 | 4 | 🎯 Target Shooting | [4TargetShooting](./4TargetShooting/) |
+| 5 | 🏓 Pong | [5Pong](./5Pong/) |
 
 ---
 
@@ -84,6 +85,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 | 2 | 🚀 Space Shooter | [2SpaceShooter](./2SpaceShooter/) |
 | 3 | ⚽ Mini Football | [3MiniFootball](./3MiniFootball/) |
 | 4 | 🎯 Target Shooting | [4TargetShooting](./4TargetShooting/) |
+| 5 | 🏓 Pong | [5Pong](./5Pong/) |
 
 ---
 
