@@ -17,6 +17,7 @@ Each project is small, easy to understand and perfect for beginners who want to 
 | 3 | ⚽ Mini Football | [3MiniFootball](./3MiniFootball/) |
 | 4 | 🎯 Target Shooting | [4TargetShooting](./4TargetShooting/) |
 | 5 | 🏓 Pong | [5Pong](./5Pong/) |
+| 6 | 🦘 Jump Game | [6JumpGame](./6JumpGame/) |
 
 ---
 
@@ -86,6 +87,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 | 3 | ⚽ Mini Football | [3MiniFootball](./3MiniFootball/) |
 | 4 | 🎯 Target Shooting | [4TargetShooting](./4TargetShooting/) |
 | 5 | 🏓 Pong | [5Pong](./5Pong/) |
+| 6 | 🦘 Jump Game | [6JumpGame](./6JumpGame/) |
 
 ---
 
