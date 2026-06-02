@@ -19,6 +19,7 @@ Each project is small, easy to understand and perfect for beginners who want to 
 | 5 | 🏓 Pong | [5Pong](./5Pong/) |
 | 6 | 🦘 Jump Game | [6JumpGame](./6JumpGame/) |
 | 7 | 🕹️ Platformer | [7Platformer](./7Platformer/) |
+| 8 | 🎯 Math Shooter | [8MathShooter](./8MathShooter/) |
 
 ---
 
@@ -90,6 +91,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 | 5 | 🏓 Pong | [5Pong](./5Pong/) |
 | 6 | 🦘 Jump Game | [6JumpGame](./6JumpGame/) |
 | 7 | 🕹️ Platformer | [7Platformer](./7Platformer/) |
+| 8 | 🎯 Math Shooter | [8MathShooter](./8MathShooter/) |
 
 ---
 
