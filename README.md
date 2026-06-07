@@ -21,6 +21,7 @@ Each project is small, easy to understand and perfect for beginners who want to 
 | 7 | 🕹️ Platformer | [7Platformer](./7Platformer/) |
 | 8 | 🎯 Math Shooter | [8MathShooter](./8MathShooter/) |
 | 9 | 🧟 Zombie Survival | [9ZombieSurvival](./9ZombieSurvival/) |
+| 10 | 🏙️ Tower Stack | [10TowerStack](./10TowerStack/) |
 
 ---
 
@@ -94,6 +95,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 | 7 | 🕹️ Platformer | [7Platformer](./7Platformer/) |
 | 8 | 🎯 Math Shooter | [8MathShooter](./8MathShooter/) |
 | 9 | 🧟 Zombie Survival | [9ZombieSurvival](./9ZombieSurvival/) |
+| 10 | 🏙️ Tower Stack | [10TowerStack](./10TowerStack/) |
 
 ---
 
