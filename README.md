@@ -2,7 +2,7 @@
 
 Collection of simple mini games made with **Python** and **Pygame**.
 
-This repository is part of the **Python Mini Games** series focused on learning game development in a fun and beginner-friendly way.
+|This repository is part of the **Python Mini Games** series focused on learning game development in a fun and beginner-friendly way.
 
 Each project is small, easy to understand and perfect for beginners who want to learn Python through real projects.
 
@@ -22,6 +22,8 @@ Each project is small, easy to understand and perfect for beginners who want to 
 | 8 | 🎯 Math Shooter | [8MathShooter](./8MathShooter/) |
 | 9 | 🧟 Zombie Survival | [9ZombieSurvival](./9ZombieSurvival/) |
 | 10 | 🏙️ Tower Stack | [10TowerStack](./10TowerStack/) |
+| 11 | 🚀 Space Dodge | [11SpaceDodge](./11SpaceDodge/) |
+
 
 ---
 
@@ -96,6 +98,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 | 8 | 🎯 Math Shooter | [8MathShooter](./8MathShooter/) |
 | 9 | 🧟 Zombie Survival | [9ZombieSurvival](./9ZombieSurvival/) |
 | 10 | 🏙️ Tower Stack | [10TowerStack](./10TowerStack/) |
+| 11 | 🚀 Space Dodge | [11SpaceDodge](./11SpaceDodge/) |
 
 ---
 
