@@ -25,6 +25,7 @@ Each project is small, easy to understand and perfect for beginners who want to 
 | 11 | 🚀 Space Dodge | [11SpaceDodge](./11SpaceDodge/) |
 | 12 | 💎 Crystal Collector | [12CrystalCollector](./12CrystalCollector/) |
 | 13 | ⚔️ Arena Survivor | [13ArenaSurvivor](./13ArenaSurvivor/) |
+| 14 | 🌊 Ocean Explorer | [14OceanExplorer](./14OceanExplorer/) |
 
 
 ---
@@ -103,6 +104,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 | 11 | 🚀 Space Dodge | [11SpaceDodge](./11SpaceDodge/) |
 | 12 | 💎 Crystal Collector | [12CrystalCollector](./12CrystalCollector/) |
 | 13 | ⚔️ Arena Survivor | [13ArenaSurvivor](./13ArenaSurvivor/) |
+| 14 | 🌊 Ocean Explorer | [14OceanExplorer](./14OceanExplorer/) |
 
 ---
 
