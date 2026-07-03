@@ -27,6 +27,7 @@ Each project is small, easy to understand and perfect for beginners who want to 
 | 13 | ⚔️ Arena Survivor | [13ArenaSurvivor](./13ArenaSurvivor/) |
 | 14 | 🌊 Ocean Explorer | [14OceanExplorer](./14OceanExplorer/) |
 | 15 | ⚔️ Dungeon Crawler | [15DungeonCrawler](./15DungeonCrawler/) |
+| 16 | 🏭 Factory Builder | [16FactoryBuilder](/16FactoryBuilder/)]
 
 
 ---
@@ -107,6 +108,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 | 13 | ⚔️ Arena Survivor | [13ArenaSurvivor](./13ArenaSurvivor/) |
 | 14 | 🌊 Ocean Explorer | [14OceanExplorer](./14OceanExplorer/) |
 | 15 | ⚔️ Dungeon Crawler | [15DungeonCrawler](./15DungeonCrawler/) |
+| 16 | 🏭 Factory Builder | [16FactoryBuilder](/16FactoryBuilder/)]
 
 ---
 
