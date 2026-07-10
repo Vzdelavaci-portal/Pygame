@@ -8,4 +8,8 @@ class Tutorial:
             return "Tutorial: Ore only leaves a miner when its arrow points into a belt."
         if world.orders.number == 1:
             return "Tutorial: Keep the belt line connected until 20 iron reaches the factory."
-        return "New order received. Expand the line or add more miners to deliver faster."
+        if world.smelter_unlocked and not world.has_smelter():
+            return "V2: Smelter unlocked. Build one, feed ore into it, then send plates to the factory."
+        if world.orders.item_kind == "iron_plate":
+            return "V2: Smelters turn ore into plates. Right click a smelter to rotate its output."
+        return "New order received. Expand the line or buy upgrades to deliver faster."
