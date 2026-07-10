@@ -1,215 +1,334 @@
-import pygame
+import random
 
-from buildings import Belt, Miner, Smelter
+from buildings import Belt, Factory, Miner, Smelter
+from items import Item
+from orders import OrderManager
 from settings import (
-    BG,
-    BLUE,
-    CYAN,
-    DARK,
+    BELT_COST,
+    BELT_UPGRADE_COST,
+    DIRECTION_ORDER,
     DIRECTIONS,
     FLOATING_TEXT_TIME,
-    GREEN,
-    GRID,
     GRID_COLS,
     GRID_ROWS,
-    HEIGHT,
-    IRON_DARK,
-    MINER_PRODUCTION_TIME,
-    MUTED,
-    ORANGE,
-    PANEL,
-    PANEL_2,
-    RED,
-    TILE_SIZE,
-    TOP_PANEL_HEIGHT,
-    WHITE,
-    WIDTH,
-    YELLOW,
-    SMELTER_PRODUCTION_TIME,
+    MESSAGE_TIME,
+    MINER_COST,
+    MINER_UPGRADE_COST,
+    ORE_VALUE,
+    PLATE_VALUE,
+    SMELTER_COST,
+    START_MONEY,
 )
 
 
-class Renderer:
-    def __init__(self, screen):
-        self.screen = screen
-        self.fonts = {
-            "tiny": pygame.font.SysFont("Arial", 16),
-            "small": pygame.font.SysFont("Arial", 19),
-            "normal": pygame.font.SysFont("Arial", 23),
-            "big": pygame.font.SysFont("Arial", 42, bold=True),
-        }
-        self.belt_anim = 0.0
+class World:
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.money = START_MONEY
+        self.selected_tool = "miner"
+        self.engineer_mode = False
+        self.message = "Build a miner on ore."
+        self.message_timer = 0.0
+        self.factory_pos = (GRID_COLS - 4, GRID_ROWS // 2)
+        self.factory = Factory()
+        self.buildings = {}
+        self.items = []
+        self.orders = OrderManager()
+        self.floating_texts = []
+        self.ore_tiles = self._make_ores()
+        self.smelter_unlocked = False
+        self.miner_speed_level = 0
+        self.belt_speed_level = 0
+        self.miner_speed_multiplier = 1.0
+        self.belt_speed_multiplier = 1.0
+
+    def _make_ores(self):
+        random.seed(16)
+        ores = set()
+        clusters = [(4, 4), (7, 9), (10, 3)]
+        for cx, cy in clusters:
+            for _ in range(10):
+                x = max(1, min(GRID_COLS // 2, cx + random.randint(-2, 2)))
+                y = max(1, min(GRID_ROWS - 2, cy + random.randint(-2, 2)))
+                if (x, y) != self.factory_pos:
+                    ores.add((x, y))
+        return ores
+
+    def in_bounds(self, tile):
+        x, y = tile
+        return 0 <= x < GRID_COLS and 0 <= y < GRID_ROWS
+
+    def set_message(self, text):
+        self.message = text
+        self.message_timer = MESSAGE_TIME
+
+    def update_message(self, tutorial_hint, dt):
+        if self.message_timer > 0:
+            self.message_timer = max(0.0, self.message_timer - dt)
+        else:
+            self.message = tutorial_hint
+
+    def cost_for(self, tool):
+        if tool == "miner":
+            return MINER_COST
+        if tool == "belt":
+            return BELT_COST
+        if tool == "smelter":
+            return SMELTER_COST
+        return 0
+
+    def can_place(self, tile, tool):
+        if tile is None or not self.in_bounds(tile):
+            return False, "Outside the build area."
+        if tile == self.factory_pos:
+            return False, "Cannot build over the factory."
+        if tool == "belt" and isinstance(self.buildings.get(tile), Belt):
+            return True, ""
+        if tool == "smelter" and not self.smelter_unlocked:
+            return False, "Complete the first order to unlock the smelter."
+        if tool != "remove" and tile in self.buildings:
+            return False, "Tile is already occupied."
+        if tool == "miner" and tile not in self.ore_tiles:
+            return False, "Miner must be placed on ore."
+        if self.money < self.cost_for(tool):
+            return False, "Not enough money."
+        return True, ""
+
+    def build(self, tile, tool, direction="right"):
+        if tool == "remove":
+            if tile in self.buildings:
+                del self.buildings[tile]
+                self.set_message("Removed building.")
+            else:
+                self.set_message("Nothing to remove here.")
+            return
+
+        allowed, reason = self.can_place(tile, tool)
+        if not allowed:
+            self.set_message(reason)
+            return
+
+        if tool == "miner":
+            self.buildings[tile] = Miner()
+            self.money -= MINER_COST
+            self.set_message("Miner built. Add a belt on its output side.")
+        elif tool == "belt":
+            self.buildings[tile] = Belt(direction)
+            self.money -= BELT_COST
+            self.set_message("Belt built.")
+        elif tool == "smelter":
+            self.buildings[tile] = Smelter()
+            self.money -= SMELTER_COST
+            self.set_message("Smelter built. Feed ore in and place a belt at its arrow.")
+
+    def place_belt(self, tile, direction, quiet=False):
+        if tile is None or not self.in_bounds(tile):
+            if not quiet:
+                self.set_message("Outside the build area.")
+            return False
+        if tile == self.factory_pos:
+            if not quiet:
+                self.set_message("Belts can feed into the factory, but not replace it.")
+            return False
+
+        existing = self.buildings.get(tile)
+        if isinstance(existing, Belt):
+            existing.direction = direction
+            return True
+        if existing is not None:
+            if not quiet:
+                self.set_message("Tile is already occupied.")
+            return False
+        if self.money < BELT_COST:
+            if not quiet:
+                self.set_message("Not enough money.")
+            return False
+
+        self.buildings[tile] = Belt(direction)
+        self.money -= BELT_COST
+        if not quiet:
+            self.set_message("Belt built.")
+        return True
+
+    def rotate_building(self, tile):
+        building = self.buildings.get(tile)
+        if isinstance(building, Miner):
+            building.rotate()
+            self.set_message(f"Miner output rotated {building.direction}.")
+        elif isinstance(building, Belt):
+            index = DIRECTION_ORDER.index(building.direction)
+            building.direction = DIRECTION_ORDER[(index + 1) % len(DIRECTION_ORDER)]
+            self.set_message(f"Belt rotated {building.direction}.")
+        elif isinstance(building, Smelter):
+            building.rotate()
+            self.set_message(f"Smelter output rotated {building.direction}.")
+
+    def buy_upgrade(self, upgrade_id):
+        if upgrade_id == "miner_speed":
+            cost = MINER_UPGRADE_COST * (self.miner_speed_level + 1)
+            if self.money < cost:
+                self.set_message("Not enough money for miner speed upgrade.")
+                return
+            self.money -= cost
+            self.miner_speed_level += 1
+            self.miner_speed_multiplier = 1.0 + self.miner_speed_level * 0.25
+            self.set_message(f"Miner speed upgraded to level {self.miner_speed_level}.")
+        elif upgrade_id == "belt_speed":
+            cost = BELT_UPGRADE_COST * (self.belt_speed_level + 1)
+            if self.money < cost:
+                self.set_message("Not enough money for belt speed upgrade.")
+                return
+            self.money -= cost
+            self.belt_speed_level += 1
+            self.belt_speed_multiplier = 1.0 + self.belt_speed_level * 0.2
+            self.set_message(f"Belt speed upgraded to level {self.belt_speed_level}.")
+
+    def has_miner(self):
+        return any(isinstance(building, Miner) for building in self.buildings.values())
+
+    def has_belt_next_to_miner(self):
+        for tile, building in self.buildings.items():
+            if isinstance(building, Miner) and self.output_belt_tile(tile, building):
+                return True
+        return False
+
+    def has_smelter(self):
+        return any(isinstance(building, Smelter) for building in self.buildings.values())
+
+    def output_belt_tile(self, tile, miner):
+        dx, dy = DIRECTIONS[miner.direction]
+        target = (tile[0] + dx, tile[1] + dy)
+        if isinstance(self.buildings.get(target), Belt):
+            return target
+        return None
+
+    def tile_has_item(self, tile):
+        return any(item.tile == tile or item.target_tile == tile for item in self.items)
+
+    def next_accepts_item(self, tile, item_kind):
+        if tile == self.factory_pos:
+            return True
+        if isinstance(self.buildings.get(tile), Smelter):
+            return item_kind == "iron_ore"
+        return isinstance(self.buildings.get(tile), Belt)
 
     def update(self, dt):
-        self.belt_anim = (self.belt_anim + dt * 40) % 40
+        self.orders.update(dt)
+        self._update_miners(dt)
+        self._update_smelters(dt)
+        self._update_items(dt)
+        self._update_floating_texts(dt)
 
-    def tile_rect(self, tile, pad=0):
-        x, y = tile
-        return pygame.Rect(
-            x * TILE_SIZE + pad,
-            TOP_PANEL_HEIGHT + y * TILE_SIZE + pad,
-            TILE_SIZE - pad * 2,
-            TILE_SIZE - pad * 2,
-        )
+    def _update_miners(self, dt):
+        for tile, building in list(self.buildings.items()):
+            if not isinstance(building, Miner):
+                continue
 
-    def draw(self, world, toolbar, mouse_tile, ghost_valid):
-        self.screen.fill(BG)
-        self.draw_grid()
-        self.draw_ores(world)
-        self.draw_factory(world)
-        self.draw_buildings(world)
-        self.draw_items(world)
-        self.draw_ghost(mouse_tile, ghost_valid, world.selected_tool)
-        if world.engineer_mode:
-            self.draw_engineer_labels(world)
-        self.draw_floating_texts(world)
-        self.draw_top_panel(world)
-        toolbar.draw(self.screen, self.fonts, world)
-        if world.orders.popup_visible:
-            self.draw_popup(world)
+            output = self.output_belt_tile(tile, building)
+            building.waiting = output is None
+            if building.waiting:
+                building.timer = min(building.timer, 0.3)
+                continue
 
-    def draw_grid(self):
-        for y in range(GRID_ROWS):
-            for x in range(GRID_COLS):
-                pygame.draw.rect(self.screen, BG, self.tile_rect((x, y)))
-                pygame.draw.rect(self.screen, GRID, self.tile_rect((x, y)), 1)
+            if self.tile_has_item(output):
+                continue
 
-    def draw_ores(self, world):
-        for tile in world.ore_tiles:
-            rect = self.tile_rect(tile)
-            pygame.draw.circle(self.screen, IRON_DARK, rect.center, 17)
-            pygame.draw.circle(self.screen, ORANGE, (rect.centerx - 2, rect.centery + 2), 12)
-            pygame.draw.circle(self.screen, YELLOW, (rect.centerx - 7, rect.centery - 5), 4)
+            building.timer += dt * self.miner_speed_multiplier
+            if building.ready():
+                self.items.append(Item.between(tile, output, "iron_ore"))
+                building.timer = 0.0
 
-    def draw_factory(self, world):
-        rect = self.tile_rect(world.factory_pos, 3)
-        pygame.draw.rect(self.screen, RED, rect, border_radius=7)
-        pygame.draw.rect(self.screen, WHITE, rect, 2, border_radius=7)
-        pygame.draw.rect(self.screen, DARK, (rect.x + 7, rect.y + 18, rect.width - 14, rect.height - 10))
-        pygame.draw.rect(self.screen, WHITE, (rect.x + 10, rect.y + 8, 7, 15))
-        pygame.draw.rect(self.screen, WHITE, (rect.x + 24, rect.y + 5, 7, 18))
-        pygame.draw.rect(self.screen, YELLOW, (rect.x + 7, rect.y + 28, rect.width - 14, 4))
+    def smelter_output_belt_tile(self, tile, smelter):
+        dx, dy = DIRECTIONS[smelter.direction]
+        target = (tile[0] + dx, tile[1] + dy)
+        if isinstance(self.buildings.get(target), Belt):
+            return target
+        return None
 
-    def draw_buildings(self, world):
-        for tile, building in world.buildings.items():
-            if isinstance(building, Belt):
-                self.draw_belt(tile, building.direction)
-            elif isinstance(building, Miner):
-                self.draw_miner(tile, building)
-            elif isinstance(building, Smelter):
-                self.draw_smelter(tile, building)
+    def _update_smelters(self, dt):
+        for tile, building in list(self.buildings.items()):
+            if not isinstance(building, Smelter):
+                continue
 
-    def draw_belt(self, tile, direction):
-        rect = self.tile_rect(tile, 4)
-        pygame.draw.rect(self.screen, (94, 101, 108), rect, border_radius=6)
-        pygame.draw.rect(self.screen, (55, 61, 69), rect, 2, border_radius=6)
-        dx, dy = DIRECTIONS[direction]
-        for i in range(3):
-            offset = ((self.belt_anim + i * 13) % 38) - 19
-            pygame.draw.circle(self.screen, WHITE, (int(rect.centerx + dx * offset), int(rect.centery + dy * offset)), 3)
-        self.draw_arrow(rect.center, direction, DARK, 13)
+            output = self.smelter_output_belt_tile(tile, building)
+            if building.input_count <= 0:
+                building.status = "Waiting for ore"
+                building.timer = 0.0
+                continue
+            if output is None:
+                building.status = "Waiting for output belt"
+                continue
+            if self.tile_has_item(output):
+                building.status = "Output blocked"
+                continue
 
-    def draw_miner(self, tile, miner):
-        rect = self.tile_rect(tile, 4)
-        pygame.draw.rect(self.screen, BLUE, rect, border_radius=7)
-        pygame.draw.rect(self.screen, WHITE, rect, 2, border_radius=7)
-        pygame.draw.circle(self.screen, DARK, rect.center, 11)
-        pygame.draw.circle(self.screen, ORANGE, rect.center, 5)
-        progress = max(0.0, min(1.0, miner.timer / MINER_PRODUCTION_TIME))
-        pygame.draw.rect(self.screen, YELLOW, (rect.x + 5, rect.bottom - 8, int((rect.width - 10) * progress), 4), border_radius=2)
-        self.draw_arrow(rect.center, miner.direction, GREEN if not miner.waiting else YELLOW, 15)
+            building.status = "Smelting"
+            building.timer += dt
+            if building.ready():
+                building.input_count -= 1
+                self.items.append(Item.between(tile, output, "iron_plate"))
+                building.timer = 0.0
 
-    def draw_smelter(self, tile, smelter):
-        rect = self.tile_rect(tile, 4)
-        pygame.draw.rect(self.screen, (112, 82, 62), rect, border_radius=7)
-        pygame.draw.rect(self.screen, WHITE, rect, 2, border_radius=7)
-        pygame.draw.rect(self.screen, DARK, (rect.x + 8, rect.y + 9, rect.width - 16, rect.height - 13), border_radius=4)
-        pygame.draw.circle(self.screen, ORANGE, rect.center, 9)
-        pygame.draw.circle(self.screen, YELLOW, (rect.centerx - 3, rect.centery - 3), 4)
-        progress = max(0.0, min(1.0, smelter.timer / SMELTER_PRODUCTION_TIME))
-        pygame.draw.rect(self.screen, CYAN, (rect.x + 5, rect.bottom - 8, int((rect.width - 10) * progress), 4), border_radius=2)
-        self.draw_arrow(rect.center, smelter.direction, CYAN if smelter.input_count else YELLOW, 14)
+    def _update_items(self, dt):
+        for item in self.items[:]:
+            arrived = item.update(dt, self.belt_speed_multiplier)
+            if not arrived or item.moving:
+                continue
 
-    def draw_arrow(self, center, direction, color, size):
-        cx, cy = center
-        if direction == "right":
-            points = [(cx + size, cy), (cx - size // 2, cy - size // 2), (cx - size // 2, cy + size // 2)]
-        elif direction == "left":
-            points = [(cx - size, cy), (cx + size // 2, cy - size // 2), (cx + size // 2, cy + size // 2)]
-        elif direction == "up":
-            points = [(cx, cy - size), (cx - size // 2, cy + size // 2), (cx + size // 2, cy + size // 2)]
-        else:
-            points = [(cx, cy + size), (cx - size // 2, cy - size // 2), (cx + size // 2, cy - size // 2)]
-        pygame.draw.polygon(self.screen, color, points)
+            if item.tile == self.factory_pos:
+                self._deliver_item(item)
+                continue
 
-    def draw_items(self, world):
-        for item in world.items:
-            color = CYAN if item.kind == "iron_plate" else ORANGE
-            shine = WHITE if item.kind == "iron_plate" else YELLOW
-            pygame.draw.circle(self.screen, color, (int(item.x), int(item.y)), 8)
-            pygame.draw.circle(self.screen, shine, (int(item.x - 3), int(item.y - 3)), 3)
+            smelter = self.buildings.get(item.tile)
+            if isinstance(smelter, Smelter):
+                self._feed_smelter(item, smelter)
+                continue
 
-    def draw_ghost(self, tile, valid, selected_tool):
-        if tile is None:
+            belt = self.buildings.get(item.tile)
+            if not isinstance(belt, Belt):
+                continue
+
+            dx, dy = DIRECTIONS[belt.direction]
+            next_tile = (item.tile[0] + dx, item.tile[1] + dy)
+            if not self.in_bounds(next_tile):
+                continue
+            if not self.next_accepts_item(next_tile, item.kind):
+                continue
+            if self.tile_has_item(next_tile):
+                continue
+
+            item.target_tile = next_tile
+            item.moving = True
+
+    def _feed_smelter(self, item, smelter):
+        if item.kind != "iron_ore":
             return
-        color = GREEN if valid else RED
-        overlay = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-        overlay.fill((*color, 68))
-        self.screen.blit(overlay, self.tile_rect(tile).topleft)
-        if selected_tool in ("belt", "smelter"):
-            pygame.draw.rect(self.screen, color, self.tile_rect(tile, 5), 2, border_radius=6)
+        if item in self.items:
+            self.items.remove(item)
+        smelter.input_count += 1
+        self.floating_texts.append({"text": "Ore in", "x": item.x - 8, "y": item.y - 18, "timer": FLOATING_TEXT_TIME})
 
-    def draw_top_panel(self, world):
-        pygame.draw.rect(self.screen, PANEL, (0, 0, WIDTH, TOP_PANEL_HEIGHT))
-        pygame.draw.line(self.screen, BLUE, (0, TOP_PANEL_HEIGHT), (WIDTH, TOP_PANEL_HEIGHT), 2)
-        self.screen.blit(self.fonts["normal"].render(f"Money: ${world.money}", True, GREEN), (18, 12))
-        order = f"Order #{world.orders.number}: {world.orders.delivered}/{world.orders.target} {world.orders.item_name}"
-        self.screen.blit(self.fonts["normal"].render(order, True, YELLOW), (160, 12))
-        self.screen.blit(self.fonts["normal"].render(f"Reward: ${world.orders.reward}", True, WHITE), (520, 12))
-        self.screen.blit(self.fonts["normal"].render(f"Selected: {world.selected_tool.title()}", True, CYAN), (690, 12))
-        mode = "Engineer: ON" if world.engineer_mode else "Engineer: OFF"
-        self.screen.blit(self.fonts["small"].render(mode, True, GREEN if world.engineer_mode else MUTED), (870, 15))
-        self.screen.blit(self.fonts["small"].render(world.message, True, MUTED), (18, 52))
+    def _deliver_item(self, item):
+        if item in self.items:
+            self.items.remove(item)
+        self.factory.delivered_total += 1
+        value = PLATE_VALUE if item.kind == "iron_plate" else ORE_VALUE
+        label = "+1 Plate" if item.kind == "iron_plate" else "+1 Ore"
+        self.money += value
+        reward = self.orders.add_item(item.kind)
+        self.floating_texts.append({"text": label, "x": item.x - 8, "y": item.y - 18, "timer": FLOATING_TEXT_TIME})
+        self.floating_texts.append({"text": f"+${value}", "x": item.x + 8, "y": item.y + 2, "timer": FLOATING_TEXT_TIME})
+        if reward:
+            self.money += reward
+            if self.orders.number == 2:
+                self.smelter_unlocked = True
+            self.set_message(f"Order complete. Reward +${reward}.")
 
-    def draw_popup(self, world):
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 120))
-        self.screen.blit(overlay, (0, 0))
-        rect = pygame.Rect(WIDTH // 2 - 210, HEIGHT // 2 - 95, 420, 190)
-        pygame.draw.rect(self.screen, PANEL_2, rect, border_radius=8)
-        pygame.draw.rect(self.screen, GREEN, rect, 3, border_radius=8)
-        self.screen.blit(self.fonts["big"].render("Mission Complete", True, WHITE), (rect.x + 48, rect.y + 28))
-        self.screen.blit(self.fonts["normal"].render(f"Reward paid: ${world.orders.last_reward}", True, YELLOW), (rect.x + 118, rect.y + 92))
-        self.screen.blit(self.fonts["small"].render("Next order is already active.", True, MUTED), (rect.x + 106, rect.y + 130))
-
-    def draw_floating_texts(self, world):
-        for text in world.floating_texts:
-            alpha = max(0, min(255, int(255 * text["timer"] / FLOATING_TEXT_TIME)))
-            surface = self.fonts["small"].render(text["text"], True, YELLOW)
-            surface.set_alpha(alpha)
-            self.screen.blit(surface, (text["x"], text["y"]))
-
-    def draw_engineer_labels(self, world):
-        self.draw_label(world.factory_pos, f"Delivered: {world.factory.delivered_total}", GREEN)
-        for tile, building in world.buildings.items():
-            if isinstance(building, Miner):
-                color = YELLOW if building.waiting else GREEN
-                status = "Waiting for belt" if building.waiting else "Running"
-                self.draw_label(tile, status, color)
-            elif isinstance(building, Belt):
-                self.draw_label(tile, "Flow", GREEN)
-            elif isinstance(building, Smelter):
-                if building.status == "Smelting":
-                    color = GREEN
-                elif building.status == "Output blocked":
-                    color = RED
-                else:
-                    color = YELLOW
-                self.draw_label(tile, building.status, color)
-
-    def draw_label(self, tile, text, color):
-        rect = self.tile_rect(tile)
-        label = self.fonts["tiny"].render(text, True, color)
-        bg = pygame.Rect(rect.centerx - label.get_width() // 2 - 4, rect.y - 17, label.get_width() + 8, 18)
-        pygame.draw.rect(self.screen, DARK, bg, border_radius=4)
-        self.screen.blit(label, (bg.x + 4, bg.y + 1))
+    def _update_floating_texts(self, dt):
+        for text in self.floating_texts[:]:
+            text["timer"] -= dt
+            text["y"] -= 28 * dt
+            if text["timer"] <= 0:
+                self.floating_texts.remove(text)
