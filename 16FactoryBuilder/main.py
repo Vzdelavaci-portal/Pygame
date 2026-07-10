@@ -69,7 +69,7 @@ def paint_belts(world, start, end):
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Factory Builder V1")
+    pygame.display.set_caption("Factory Builder V2")
     clock = pygame.time.Clock()
 
     world = World()
@@ -79,6 +79,7 @@ def main():
     belt_last_tile = None
     belt_last_direction = "right"
     belt_drag_moved = False
+    remove_dragging = False
 
     running = True
     while running:
@@ -102,7 +103,10 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     clicked_tool = toolbar.tool_at(event.pos)
-                    if clicked_tool:
+                    clicked_upgrade = toolbar.upgrade_at(event.pos)
+                    if clicked_upgrade:
+                        world.buy_upgrade(clicked_upgrade)
+                    elif clicked_tool:
                         world.selected_tool = clicked_tool
                         world.set_message(f"Selected {clicked_tool}.")
                     else:
@@ -111,6 +115,10 @@ def main():
                             belt_last_tile = tile
                             belt_last_direction = "right"
                             belt_drag_moved = False
+                        elif world.selected_tool == "remove":
+                            remove_dragging = True
+                            if tile is not None:
+                                world.build(tile, "remove")
                         elif tile is not None:
                             world.build(tile, world.selected_tool)
                 elif event.button == 3:
@@ -126,6 +134,10 @@ def main():
                     if next_tile is not None:
                         belt_last_tile = next_tile
                     belt_drag_moved = belt_drag_moved or changed
+                elif world.selected_tool == "remove" and remove_dragging and event.buttons[0]:
+                    tile = tile_at_pos(event.pos)
+                    if tile is not None and tile in world.buildings:
+                        world.build(tile, "remove")
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1 and world.selected_tool == "belt" and belt_last_tile is not None:
                     if belt_drag_moved:
@@ -134,6 +146,8 @@ def main():
                         world.place_belt(belt_last_tile, drag_direction(belt_last_tile, tile_at_pos(event.pos)))
                     belt_last_tile = None
                     belt_drag_moved = False
+                elif event.button == 1:
+                    remove_dragging = False
 
         world.update(dt)
         world.update_message(tutorial.hint(world), dt)
