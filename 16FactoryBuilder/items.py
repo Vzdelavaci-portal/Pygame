@@ -17,14 +17,15 @@ class Item:
     target_tile: tuple[int, int]
     x: float
     y: float
+    kind: str = "iron_ore"
     moving: bool = True
 
     @classmethod
-    def between(cls, start_tile, target_tile):
+    def between(cls, start_tile, target_tile, kind="iron_ore"):
         x, y = tile_center(start_tile)
-        return cls(start_tile, target_tile, float(x), float(y), True)
+        return cls(start_tile, target_tile, float(x), float(y), kind, True)
 
-    def update(self, dt):
+    def update(self, dt, speed_multiplier=1.0):
         if not self.moving:
             return True
 
@@ -33,13 +34,14 @@ class Item:
         dy = target_y - self.y
         distance = (dx * dx + dy * dy) ** 0.5
 
-        if distance <= ITEM_SPEED * dt:
+        speed = ITEM_SPEED * speed_multiplier
+        if distance <= speed * dt:
             self.x = float(target_x)
             self.y = float(target_y)
             self.tile = self.target_tile
             self.moving = False
             return True
 
-        self.x += dx / distance * ITEM_SPEED * dt
-        self.y += dy / distance * ITEM_SPEED * dt
+        self.x += dx / distance * speed * dt
+        self.y += dy / distance * speed * dt
         return False
