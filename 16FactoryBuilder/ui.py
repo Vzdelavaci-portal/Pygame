@@ -1,6 +1,6 @@
 import pygame
 
-from buildings import Belt, Miner
+from buildings import Belt, Miner, Smelter
 from settings import (
     BG,
     BLUE,
@@ -25,6 +25,7 @@ from settings import (
     WHITE,
     WIDTH,
     YELLOW,
+    SMELTER_PRODUCTION_TIME,
 )
 
 
@@ -63,7 +64,7 @@ class Renderer:
             self.draw_engineer_labels(world)
         self.draw_floating_texts(world)
         self.draw_top_panel(world)
-        toolbar.draw(self.screen, self.fonts, world.selected_tool)
+        toolbar.draw(self.screen, self.fonts, world)
         if world.orders.popup_visible:
             self.draw_popup(world)
 
@@ -95,6 +96,8 @@ class Renderer:
                 self.draw_belt(tile, building.direction)
             elif isinstance(building, Miner):
                 self.draw_miner(tile, building)
+            elif isinstance(building, Smelter):
+                self.draw_smelter(tile, building)
 
     def draw_belt(self, tile, direction):
         rect = self.tile_rect(tile, 4)
@@ -116,6 +119,17 @@ class Renderer:
         pygame.draw.rect(self.screen, YELLOW, (rect.x + 5, rect.bottom - 8, int((rect.width - 10) * progress), 4), border_radius=2)
         self.draw_arrow(rect.center, miner.direction, GREEN if not miner.waiting else YELLOW, 15)
 
+    def draw_smelter(self, tile, smelter):
+        rect = self.tile_rect(tile, 4)
+        pygame.draw.rect(self.screen, (112, 82, 62), rect, border_radius=7)
+        pygame.draw.rect(self.screen, WHITE, rect, 2, border_radius=7)
+        pygame.draw.rect(self.screen, DARK, (rect.x + 8, rect.y + 9, rect.width - 16, rect.height - 13), border_radius=4)
+        pygame.draw.circle(self.screen, ORANGE, rect.center, 9)
+        pygame.draw.circle(self.screen, YELLOW, (rect.centerx - 3, rect.centery - 3), 4)
+        progress = max(0.0, min(1.0, smelter.timer / SMELTER_PRODUCTION_TIME))
+        pygame.draw.rect(self.screen, CYAN, (rect.x + 5, rect.bottom - 8, int((rect.width - 10) * progress), 4), border_radius=2)
+        self.draw_arrow(rect.center, smelter.direction, CYAN if smelter.input_count else YELLOW, 14)
+
     def draw_arrow(self, center, direction, color, size):
         cx, cy = center
         if direction == "right":
@@ -130,8 +144,10 @@ class Renderer:
 
     def draw_items(self, world):
         for item in world.items:
-            pygame.draw.circle(self.screen, ORANGE, (int(item.x), int(item.y)), 8)
-            pygame.draw.circle(self.screen, YELLOW, (int(item.x - 3), int(item.y - 3)), 3)
+            color = CYAN if item.kind == "iron_plate" else ORANGE
+            shine = WHITE if item.kind == "iron_plate" else YELLOW
+            pygame.draw.circle(self.screen, color, (int(item.x), int(item.y)), 8)
+            pygame.draw.circle(self.screen, shine, (int(item.x - 3), int(item.y - 3)), 3)
 
     def draw_ghost(self, tile, valid, selected_tool):
         if tile is None:
@@ -140,18 +156,19 @@ class Renderer:
         overlay = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
         overlay.fill((*color, 68))
         self.screen.blit(overlay, self.tile_rect(tile).topleft)
-        if selected_tool == "belt":
+        if selected_tool in ("belt", "smelter"):
             pygame.draw.rect(self.screen, color, self.tile_rect(tile, 5), 2, border_radius=6)
 
     def draw_top_panel(self, world):
         pygame.draw.rect(self.screen, PANEL, (0, 0, WIDTH, TOP_PANEL_HEIGHT))
         pygame.draw.line(self.screen, BLUE, (0, TOP_PANEL_HEIGHT), (WIDTH, TOP_PANEL_HEIGHT), 2)
         self.screen.blit(self.fonts["normal"].render(f"Money: ${world.money}", True, GREEN), (18, 12))
-        self.screen.blit(self.fonts["normal"].render(f"Order #{world.orders.number}: {world.orders.delivered}/{world.orders.target} Iron", True, YELLOW), (180, 12))
-        self.screen.blit(self.fonts["normal"].render(f"Reward: ${world.orders.reward}", True, WHITE), (462, 12))
-        self.screen.blit(self.fonts["normal"].render(f"Selected: {world.selected_tool.title()}", True, CYAN), (650, 12))
+        order = f"Order #{world.orders.number}: {world.orders.delivered}/{world.orders.target} {world.orders.item_name}"
+        self.screen.blit(self.fonts["normal"].render(order, True, YELLOW), (160, 12))
+        self.screen.blit(self.fonts["normal"].render(f"Reward: ${world.orders.reward}", True, WHITE), (520, 12))
+        self.screen.blit(self.fonts["normal"].render(f"Selected: {world.selected_tool.title()}", True, CYAN), (690, 12))
         mode = "Engineer: ON" if world.engineer_mode else "Engineer: OFF"
-        self.screen.blit(self.fonts["small"].render(mode, True, GREEN if world.engineer_mode else MUTED), (850, 15))
+        self.screen.blit(self.fonts["small"].render(mode, True, GREEN if world.engineer_mode else MUTED), (870, 15))
         self.screen.blit(self.fonts["small"].render(world.message, True, MUTED), (18, 52))
 
     def draw_popup(self, world):
@@ -181,6 +198,14 @@ class Renderer:
                 self.draw_label(tile, status, color)
             elif isinstance(building, Belt):
                 self.draw_label(tile, "Flow", GREEN)
+            elif isinstance(building, Smelter):
+                if building.status == "Smelting":
+                    color = GREEN
+                elif building.status == "Output blocked":
+                    color = RED
+                else:
+                    color = YELLOW
+                self.draw_label(tile, building.status, color)
 
     def draw_label(self, tile, text, color):
         rect = self.tile_rect(tile)
