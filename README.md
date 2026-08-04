@@ -29,7 +29,8 @@ Each project is small, easy to understand and perfect for beginners who want to 
 | 15 | ⚔️ Dungeon Crawler | [15DungeonCrawler](./15DungeonCrawler/) |
 | 16 | 🏭 Factory Builder | [16FactoryBuilder](/16FactoryBuilder/) |
 | 17 | 🐍 Evolution Snake | [17EvolutionSnake](/17EvolutionSnake/) |
-| 18 | 🎮 Fusion Tetris | [18FusionTetris](/18FusionTetris/)|
+| 18 | 🎮 Fusion Tetris | [18FusionTetris](/18FusionTetris/) |
+| 19 | 🏭 Arkanoid Factory | [19ArkanoidFactory](/19ArkanoidFactory/) |
 
 
 ---
@@ -113,6 +114,7 @@ Každá hra je jednoduchá, přehledná a vhodná i pro začátečníky.
 | 16 | 🏭 Factory Builder | [16FactoryBuilder](/16FactoryBuilder/) |
 | 17 | 🐍 Evolution Snake | [17EvolutionSnake](/17EvolutionSnake/) |
 | 18 | 🎮 Fusion Tetris | [18FusionTetris](/18FusionTetris/)|
+| 19 | 🏭 Arkanoid Factory | [19ArkanoidFactory](/19ArkanoidFactory/) |
 
 ---
 
